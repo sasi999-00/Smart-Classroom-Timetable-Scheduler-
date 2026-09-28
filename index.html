@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Classroom & Timetable Scheduler</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #0f172a;
+            color: white;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 15px 5px 30px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .menu {
+            list-style: none;
+            margin-top: 25px;
+        }
+
+        .menu li {
+            padding: 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: 0.2s;
+        }
+
+        .menu li:hover,
+        .menu li.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+            padding: 25px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+            color: #0f172a;
+        }
+
+        .topbar p {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .admin {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        /* =========================
+           PAGE
+        ========================= */
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* =========================
+           DASHBOARD CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .stat-card .icon {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: normal;
+        }
+
+        .stat-card .number {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 8px;
+            color: #2563eb;
+        }
+
+        /* =========================
+           CONTENT CARD
+        ========================= */
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-title h2 {
+            font-size: 20px;
+            color: #0f172a;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        button {
+            border: none;
+            border-radius: 7px;
+            padding: 11px 18px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .primary:hover {
+            background: #1d4ed8;
+        }
+
+        .danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .danger:hover {
+            background: #dc2626;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #475569;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+            background: white;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+        }
+
+        .form-button {
+            display: flex;
+            align-items: end;
+        }
+
+        .form-button button {
+            width: 100%;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th {
+            background: #0f172a;
+            color: white;
+            padding: 13px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 13px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* =========================
+           CLASSROOM GRID
+        ========================= */
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .room {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .room h3 {
+            margin-bottom: 12px;
+        }
+
+        .room p {
+            font-size: 13px;
+            color: #64748b;
+            margin: 6px 0;
+        }
+
+        .available {
+            color: #15803d !important;
+            font-weight: bold;
+        }
+
+        .occupied {
+            color: #dc2626 !important;
+            font-weight: bold;
+        }
+
+        /* =========================
+           SEARCH
+        ========================= */
+
+        .search {
+            max-width: 300px;
+        }
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .message {
+            display: none;
+            padding: 13px;
+            margin-bottom: 18px;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #64748b;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media(max-width: 1000px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .room-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .menu {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+
+            .menu li {
+                margin: 0;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<!-- ==========================================
+     SIDEBAR
+========================================== -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <h2>🎓 Smart Classroom</h2>
+
+        <p>Timetable Scheduler</p>
+
+    </div>
+
+
+    <ul class="menu">
+
+        <li class="active" onclick="showPage('dashboard', this)">
+            🏠 Dashboard
+        </li>
+
+        <li onclick="showPage('timetable', this)">
+            📅 Timetable
+        </li>
+
+        <li onclick="showPage('classrooms', this)">
+            🏫 Classrooms
+        </li>
+
+        <li onclick="showPage('faculty', this)">
+            👨‍🏫 Faculty
+        </li>
+
+        <li onclick="showPage('students', this)">
+            👨‍🎓 Students
+        </li>
+
+    </ul>
+
+</aside>
+
+
+<!-- ==========================================
+     MAIN
+========================================== -->
+
+<main class="main">
+
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Smart Classroom & Timetable Scheduler</h1>
+
+            <p>Manage classes, classrooms and schedules</p>
+
+        </div>
+
+        <div class="admin">
+            👤 Administrator
+        </div>
+
+    </div>
+
+
+    <!-- ======================================
+         DASHBOARD
+    ======================================= -->
+
+    <section id="dashboard" class="page active">
+
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div class="icon">🏫</div>
+
+                <h3>Total Classrooms</h3>
+
+                <div class="number">
+                    12
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="icon">👨‍🏫</div>
+
+                <h3>Total Faculty</h3>
+
+                <div class="number">
+                    25
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="icon">👨‍🎓</div>
+
+                <h3>Total Students</h3>
+
+                <div class="number">
+                    850
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="icon">📅</div>
+
+                <h3>Scheduled Classes</h3>
+
+                <div class="number" id="dashboardCount">
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h2>📅 Today's Schedule</h2>
+
+                <button
+                    class="primary"
+                    onclick="showPage('timetable', document.querySelectorAll('.menu li')[1])">
+                    Manage Timetable
+                </button>
+
+            </div>
+
+
+            <div id="todaySchedule">
+
+                <div class="empty">
+                    No classes scheduled yet.
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ======================================
+         TIMETABLE
+    ======================================= -->
+
+    <section id="timetable" class="page">
+
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h2>➕ Create Timetable</h2>
+
+            </div>
+
+
+            <div id="formMessage" class="message"></div>
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label>Subject</label>
+
+                    <input
+                        type="text"
+                        id="subject"
+                        placeholder="Example: Python">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Class</label>
+
+                    <select id="className">
+
+                        <option value="">
+                            Select Class
+                        </option>
+
+                        <option>CSE-A</option>
+                        <option>CSE-B</option>
+                        <option>CSE-C</option>
+                        <option>AIDS-A</option>
+                        <option>AIDS-B</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Faculty</label>
+
+                    <select id="facultyName">
+
+                        <option value="">
+                            Select Faculty
+                        </option>
+
+                        <option>Dr. Ravi Kumar</option>
+                        <option>Prof. Priya</option>
+                        <option>Dr. Arun</option>
+                        <option>Prof. Suresh</option>
+                        <option>Dr. Lakshmi</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Day</label>
+
+                    <select id="day">
+
+                        <option value="">
+                            Select Day
+                        </option>
+
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                        <option>Saturday</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Time</label>
+
+                    <select id="time">
+
+                        <option value="">
+                            Select Time
+                        </option>
+
+                        <option>09:00 - 10:00</option>
+                        <option>10:00 - 11:00</option>
+                        <option>11:00 - 12:00</option>
+                        <option>12:00 - 01:00</option>
+                        <option>02:00 - 03:00</option>
+                        <option>03:00 - 04:00</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Classroom</label>
+
+                    <select id="room">
+
+                        <option value="">
+                            Select Classroom
+                        </option>
+
+                        <option>Room 101</option>
+                        <option>Room 102</option>
+                        <option>Room 103</option>
+                        <option>Room 104</option>
+                        <option>Lab 1</option>
+                        <option>Lab 2</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-button">
+
+                    <button
+                        class="primary"
+                        onclick="addSchedule()">
+
+                        ➕ Add Schedule
+
+                    </button>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- TIMETABLE LIST -->
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h2>📋 Scheduled Classes</h2>
+
+                <input
+                    class="search"
+                    type="text"
+                    id="searchBox"
+                    placeholder="🔍 Search timetable..."
+                    oninput="renderSchedules()">
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Subject</th>
+                            <th>Class</th>
+                            <th>Faculty</th>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Room</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="scheduleTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ======================================
+         CLASSROOMS
+    ======================================= -->
+
+    <section id="classrooms" class="page">
+
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h2>🏫 Smart Classrooms</h2>
+
+            </div>
+
+
+            <div class="room-grid">
+
+
+                <div class="room">
+
+                    <h3>Room 101</h3>
+
+                    <p>👥 Capacity: 60</p>
+
+                    <p>📽️ Projector: Available</p>
+
+                    <p>🖥️ Smart Board: Available</p>
+
+                    <p class="available">
+                        ● Available
+                    </p>
+
+                </div>
+
+
+                <div class="room">
+
+                    <h3>Room 102</h3>
+
+                    <p>👥 Capacity: 50</p>
+
+                    <p>📽️ Projector: Available</p>
+
+                    <p>🖥️ Smart Board: Available</p>
+
+                    <p class="available">
+                        ● Available
+                    </p>
+
+                </div>
+
+
+                <div class="room">
+
+                    <h3>Room 103</h3>
+
+                    <p>👥 Capacity: 70</p>
+
+                    <p>📽️ Projector: Available</p>
+
+                    <p>🖥️ Smart Board: Available</p>
+
+                    <p class="available">
+                        ● Available
+                    </p>
+
+                </div>
+
+
+                <div class="room">
+
+                    <h3>Room 104</h3>
+
+                    <p>👥 Capacity: 80</p>
+
+                    <p>📽️ Projector: Available</p>
+
+                    <p>🖥️ Smart Board: Available</p>
+
+                    <p class="available">
+                        ● Available
+                    </p>
+
+                </div>
+
+
+                <div class="room">
+
+                    <h3>Lab 1</h3>
+
+                    <p>👥 Capacity: 40</p>
+
+                    <p>💻 Computers: 40</p>
+
+                    <p>🌐 Internet: Available</p>
+
+                    <p class="available">
+                        ● Available
+                    </p>
+
+                </div>
+
+
+                <div class="room">
+
+                    <h3>Lab 2</h3>
+
+                    <p>👥 Capacity: 40</p>
+
+                    <p>💻 Computers: 40</p>
+
+                    <p>🌐 Internet: Available</p>
+
+                    <p class="available">
+                        ● Available
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ======================================
+         FACULTY
+    ======================================= -->
+
+    <section id="faculty" class="page">
+
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h2>👨‍🏫 Faculty Management</h2>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Faculty Name</th>
+                            <th>Department</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>Dr. Ravi Kumar</td>
+                            <td>CSE</td>
+                            <td>Python</td>
+
+                            <td>
+                                <span class="badge badge-green">
+                                    Available
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>Prof. Priya</td>
+                            <td>CSE</td>
+                            <td>DBMS</td>
+
+                            <td>
+                                <span class="badge badge-green">
+                                    Available
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>Dr. Arun</td>
+                            <td>AI&DS</td>
+                            <td>Machine Learning</td>
+
+                            <td>
+                                <span class="badge badge-green">
+                                    Available
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>Prof. Suresh</td>
+                            <td>CSE</td>
+                            <td>Java</td>
+
+                            <td>
+                                <span class="badge badge-green">
+                                    Available
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>Dr. Lakshmi</td>
+                            <td>AI&DS</td>
+                            <td>Artificial Intelligence</td>
+
+                            <td>
+                                <span class="badge badge-green">
+                                    Available
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ======================================
+         STUDENTS
+    ======================================= -->
+
+    <section id="students" class="page">
+
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div class="icon">👨‍🎓</div>
+
+                <h3>CSE Students</h3>
+
+                <div class="number">
+                    450
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="icon">🤖</div>
+
+                <h3>AI&DS Students</h3>
+
+                <div class="number">
+                    400
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h2>👨‍🎓 Class Information</h2>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Class</th>
+                            <th>Department</th>
+                            <th>Students</th>
+                            <th>Class Teacher</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+                            <td>CSE-A</td>
+                            <td>CSE</td>
+                            <td>60</td>
+                            <td>Dr. Ravi Kumar</td>
+                        </tr>
+
+                        <tr>
+                            <td>CSE-B</td>
+                            <td>CSE</td>
+                            <td>58</td>
+                            <td>Prof. Priya</td>
+                        </tr>
+
+                        <tr>
+                            <td>CSE-C</td>
+                            <td>CSE</td>
+                            <td>62</td>
+                            <td>Prof. Suresh</td>
+                        </tr>
+
+                        <tr>
+                            <td>AIDS-A</td>
+                            <td>AI&DS</td>
+                            <td>55</td>
+                            <td>Dr. Arun</td>
+                        </tr>
+
+                        <tr>
+                            <td>AIDS-B</td>
+                            <td>AI&DS</td>
+                            <td>57</td>
+                            <td>Dr. Lakshmi</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<script>
+
+    /* =========================================
+       DATA
+    ========================================= */
+
+    let schedules =
+        JSON.parse(localStorage.getItem("smartSchedules")) || [];
+
+
+    /* =========================================
+       PAGE NAVIGATION
+    ========================================= */
+
+    function showPage(pageId, element) {
+
+        document.querySelectorAll(".page")
+            .forEach(page => {
+
+                page.classList.remove("active");
+
+            });
+
+
+        document.getElementById(pageId)
+            .classList.add("active");
+
+
+        document.querySelectorAll(".menu li")
+            .forEach(item => {
+
+                item.classList.remove("active");
+
+            });
+
+
+        if (element) {
+
+            element.classList.add("active");
+
+        }
+
+
+        renderSchedules();
+
+        updateDashboard();
+
+    }
+
+
+    /* =========================================
+       MESSAGE
+    ========================================= */
+
+    function showMessage(message, type) {
+
+        const box =
+            document.getElementById("formMessage");
+
+
+        box.textContent = message;
+
+        box.className =
+            "message " + type;
+
+        box.style.display = "block";
+
+
+        setTimeout(() => {
+
+            box.style.display = "none";
+
+        }, 3500);
+
+    }
+
+
+    /* =========================================
+       ADD SCHEDULE
+    ========================================= */
+
+    function addSchedule() {
+
+        const subject =
+            document.getElementById("subject").value.trim();
+
+        const className =
+            document.getElementById("className").value;
+
+        const faculty =
+            document.getElementById("facultyName").value;
+
+        const day =
+            document.getElementById("day").value;
+
+        const time =
+            document.getElementById("time").value;
+
+        const room =
+            document.getElementById("room").value;
+
+
+        /* VALIDATION */
+
+        if (
+            subject === "" ||
+            className === "" ||
+            faculty === "" ||
+            day === "" ||
+            time === "" ||
+            room === ""
+        ) {
+
+            showMessage(
+                "Please fill in all fields.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /* =====================================
+           CONFLICT CHECK
+        ===================================== */
+
+        const conflict =
+            schedules.find(item =>
+
+                item.day === day &&
+                item.time === time &&
+                (
+                    item.className === className ||
+                    item.faculty === faculty ||
+                    item.room === room
+                )
+
+            );
+
+
+        if (conflict) {
+
+            let reason = "";
+
+
+            if (
+                conflict.className === className
+            ) {
+
+                reason =
+                    "This class already has a timetable entry at this time.";
+
+            }
+            else if (
+                conflict.faculty === faculty
+            ) {
+
+                reason =
+                    "This faculty member is already assigned at this time.";
+
+            }
+            else if (
+                conflict.room === room
+            ) {
+
+                reason =
+                    "This classroom is already occupied at this time.";
+
+            }
+
+
+            showMessage(
+                "⚠️ Conflict detected: " + reason,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /* =====================================
+           CREATE OBJECT
+        ===================================== */
+
+        const newSchedule = {
+
+            id: Date.now(),
+
+            subject: subject,
+
+            className: className,
+
+            faculty: faculty,
+
+            day: day,
+
+            time: time,
+
+            room: room
+
+        };
+
+
+        schedules.push(newSchedule);
+
+
+        /* SAVE */
+
+        localStorage.setItem(
+            "smartSchedules",
+            JSON.stringify(schedules)
+        );
+
+
+        /* CLEAR */
+
+        document.getElementById("subject").value = "";
+
+        document.getElementById("className").value = "";
+
+        document.getElementById("facultyName").value = "";
+
+        document.getElementById("day").value = "";
+
+        document.getElementById("time").value = "";
+
+        document.getElementById("room").value = "";
+
+
+        showMessage(
+            "✅ Timetable created successfully!",
+            "success"
+        );
+
+
+        renderSchedules();
+
+        updateDashboard();
+
+    }
+
+
+    /* =========================================
+       DELETE
+    ========================================= */
+
+    function deleteSchedule(id) {
+
+        const confirmDelete =
+            confirm(
+                "Are you sure you want to delete this schedule?"
+            );
+
+
+        if (!confirmDelete) {
+
+            return;
+
+        }
+
+
+        schedules =
+            schedules.filter(
+                item => item.id !== id
+            );
+
+
+        localStorage.setItem(
+            "smartSchedules",
+            JSON.stringify(schedules)
+        );
+
+
+        renderSchedules();
+
+        updateDashboard();
+
+    }
+
+
+    /* =========================================
+       RENDER TABLE
+    ========================================= */
+
+    function renderSchedules() {
+
+        const table =
+            document.getElementById("scheduleTable");
+
+
+        const search =
+            document.getElementById("searchBox")?.value
+            .toLowerCase() || "";
+
+
+        let filtered =
+            schedules.filter(item =>
+
+                item.subject.toLowerCase().includes(search) ||
+
+                item.className.toLowerCase().includes(search) ||
+
+                item.faculty.toLowerCase().includes(search) ||
+
+                item.day.toLowerCase().includes(search) ||
+
+                item.room.toLowerCase().includes(search)
+
+            );
+
+
+        table.innerHTML = "";
+
+
+        if (filtered.length === 0) {
+
+            table.innerHTML = `
+
+                <tr>
+
+                    <td colspan="7">
+
+                        <div class="empty">
+
+                            📅 No timetable entries found.
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+        filtered.forEach(item => {
+
+            const row =
+                document.createElement("tr");
+
+
+            row.innerHTML = `
+
+                <td>
+                    <strong>${escapeHTML(item.subject)}</strong>
+                </td>
+
+                <td>
+                    <span class="badge badge-blue">
+                        ${escapeHTML(item.className)}
+                    </span>
+                </td>
+
+                <td>
+                    ${escapeHTML(item.faculty)}
+                </td>
+
+                <td>
+                    ${escapeHTML(item.day)}
+                </td>
+
+                <td>
+                    ${escapeHTML(item.time)}
+                </td>
+
+                <td>
+                    ${escapeHTML(item.room)}
+                </td>
+
+                <td>
+
+                    <button
+                        class="danger"
+                        onclick="deleteSchedule(${item.id})">
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        });
+
+    }
+
+
+    /* =========================================
+       ESCAPE HTML
+    ========================================= */
+
+    function escapeHTML(value) {
+
+        return value
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+
+    /* =========================================
+       DASHBOARD UPDATE
+    ========================================= */
+
+    function updateDashboard() {
+
+        document.getElementById(
+            "dashboardCount"
+        ).textContent = schedules.length;
+
+
+        const today =
+            new Date().toLocaleDateString(
+                "en-US",
+                { weekday: "long" }
+            );
+
+
+        const todayClasses =
+            schedules.filter(
+                item => item.day === today
+            );
+
+
+        const container =
+            document.getElementById(
+                "todaySchedule"
+            );
+
+
+        if (todayClasses.length === 0) {
+
+            container.innerHTML = `
+
+                <div class="empty">
+
+                    📅 No classes scheduled for ${today}.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = `
+
+            <div class="table-container">
+
+            <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Time</th>
+                    <th>Subject</th>
+                    <th>Class</th>
+                    <th>Faculty</th>
+                    <th>Room</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+        `;
+
+
+        todayClasses.forEach(item => {
+
+            html += `
+
+                <tr>
+
+                    <td>${escapeHTML(item.time)}</td>
+
+                    <td>${escapeHTML(item.subject)}</td>
+
+                    <td>${escapeHTML(item.className)}</td>
+
+                    <td>${escapeHTML(item.faculty)}</td>
+
+                    <td>${escapeHTML(item.room)}</td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        html += `
+
+            </tbody>
+
+            </table>
+
+            </div>
+
+        `;
+
+
+        container.innerHTML = html;
+
+    }
+
+
+    /* =========================================
+       START APPLICATION
+    ========================================= */
+
+    renderSchedules();
+
+    updateDashboard();
+
+</script>
+
+</body>
+</html>
